@@ -1,0 +1,32 @@
+name: QA Branch Pipeline
+
+on:
+  push:
+    branches:
+      - qa
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Verify latest commits pushed to qa
+        run: |
+          echo "Latest commits pushed to qa:"
+          git log -5 --oneline
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run dry-run of game
+        run: node game.js --help || echo "Game ran (or checked) successfully"

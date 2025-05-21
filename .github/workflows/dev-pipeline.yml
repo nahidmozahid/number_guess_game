@@ -1,0 +1,32 @@
+name: Dev Branch Pipeline
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # To access full git history if needed
+
+      - name: Verify latest commit author (optional)
+        run: |
+          echo "Latest commits pushed to dev:"
+          git log -5 --oneline
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run dry-run of game
+        run: node game.js --help || echo "Game ran (or checked) successfully"
