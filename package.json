@@ -1,0 +1,11 @@
+{
+  "name": "number-guess-game",
+  "version": "1.0.0",
+  "description": "Simple Node.js Number Guessing Game",
+  "main": "game.js",
+  "scripts": {
+    "start": "node game.js"
+  },
+  "author": "Your Name",
+  "license": "MIT"
+}
