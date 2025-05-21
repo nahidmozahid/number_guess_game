@@ -1,4 +1,4 @@
-name: QA Branch Pipeline
+name: Build and Push Docker Image (QA)
 
 on:
   push:
@@ -6,27 +6,31 @@ on:
       - qa
 
 jobs:
-  build:
+  build-and-push:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
 
-      - name: Verify latest commits pushed to qa
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Build Docker image
         run: |
-          echo "Latest commits pushed to qa:"
-          git log -5 --oneline
+          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/number-guess-game:qa-${{ github.sha }} .
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
+      - name: Push Docker image
+        run: |
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/number-guess-game:qa-${{ github.sha }}
 
-      - name: Install dependencies
-        run: npm install
-
-      - name: Run dry-run of game
-        run: node game.js --help || echo "Game ran (or checked) successfully"
+      - name: Tag latest qa image
+        run: |
+          docker tag ${{ secrets.DOCKER_HUB_USERNAME }}/number-guess-game:qa-${{ github.sha }} ${{ secrets.DOCKER_HUB_USERNAME }}/number-guess-game:qa-latest
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/number-guess-game:qa-latest
